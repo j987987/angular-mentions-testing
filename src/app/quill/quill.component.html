@@ -1,0 +1,9 @@
+<div>
+  <!-- <quill-editor #editor [modules]="modules" (onEditorCreated)="addBindingCreated($event)"></quill-editor> -->
+  <quill-editor #editor [modules]="modules" [formControl]="ctrl"></quill-editor>
+  <br>
+  <h5>Value</h5>  
+  <p>{{ ctrl.value }}</p>
+  <h5>Rendered</h5>
+  <p [innerHTML]="ctrl.value"></p>
+</div>

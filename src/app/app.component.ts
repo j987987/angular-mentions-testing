@@ -6,5 +6,8 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'app';
+  mentions2 = [
+    { id: 1, userName: 'abc123', name: 'George Washington' },
+    { id: 2, userName: 'xyz890', name: 'John Adams' }
+  ];
 }

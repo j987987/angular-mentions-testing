@@ -1,0 +1,14 @@
+<div>
+<simplemde [formControl]="ctrl" #mde></simplemde>
+<h4>Value</h4>
+<div>{{ ctrl.value }}</div>
+<h4>Rendered</h4>
+<div>
+    <markdown [data]="ctrl.value"></markdown>
+</div>
+<span id="help" #help [class.inlineBlock]="showMentions">
+    <div *ngFor="let mention of mentions; let i = index" [class.selected]="i === selectedIndex" class="mention2" (mouseenter)="selectedIndex = i" (click)="addMention()">
+        <strong>{{ mention.userName }}</strong>&nbsp;<span class="light">{{ mention.name }}</span>
+    </div>
+</span>
+</div>

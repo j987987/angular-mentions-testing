@@ -1,1 +1,56 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'simplemde/dist/simplemde.min.css';
+
+* {
+  font-family: 'Roboto', sans-serif;
+}
+
+.ql-mention-list-container {
+  width: 270px;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  background-color: #fff;
+  box-shadow: 0 2px 12px 0 rgba(30, 30, 30, .08)
+}
+
+.ql-mention-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden
+}
+
+.ql-mention-list-item {
+  cursor: pointer;
+  height: 44px;
+  line-height: 44px;
+  font-size: 16px;
+  padding: 0 20px;
+  vertical-align: middle
+}
+
+.ql-mention-list-item.selected {
+  background-color: #d3e1eb;
+  text-decoration: none
+}
+
+.mention {
+  height: 24px;
+  width: 65px;
+  border-radius: 6px;
+  background-color: #d3e1eb;
+  padding: 3px 0
+}
+
+.mention[data-denotation-char="#"],
+.ql-mention-list-item.selected[data-denotation-char="#"] {
+  background-color: #f8e7a5;
+}
+
+.mention>span {
+  margin: 0 3px
+}
+
+.inlineBlock {
+  display: inline-block !important;
+}

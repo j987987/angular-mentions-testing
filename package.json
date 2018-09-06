@@ -21,7 +21,12 @@
     "@angular/platform-browser-dynamic": "^6.0.3",
     "@angular/router": "^6.0.3",
     "core-js": "^2.5.4",
+    "ng2-simplemde": "^2.0.2",
+    "ngx-markdown": "^6.2.0",
+    "ngx-quill": "^3.4.0",
+    "quill-mention": "^2.0.0",
     "rxjs": "^6.0.0",
+    "ts-keycode-enum": "^1.0.6",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
