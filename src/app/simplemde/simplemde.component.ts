@@ -21,10 +21,30 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
 
   @Input()
   mentions = [
-    { id: 1, userName: 'MoneyTime', name: 'John Doe' },
-    { id: 2, userName: 'superman', name: 'Peter Parker' },
-    { id: 3, userName: 'ssMinnow', name: 'Sally Sanders' },
-    { id: 4, userName: 'dashrimps', name: 'Bubba Gump' }
+    {
+      id: 1,
+      userName: 'MoneyTime',
+      name: 'John Doe',
+      url: 'https://api.adorable.io/avatars/20/1.png'
+    },
+    {
+      id: 2,
+      userName: 'superman',
+      name: 'Peter Parker',
+      url: 'https://api.adorable.io/avatars/20/2.png'
+    },
+    {
+      id: 3,
+      userName: 'ssMinnow',
+      name: 'Sally Sanders',
+      url: 'https://api.adorable.io/avatars/20/3.png'
+    },
+    {
+      id: 4,
+      userName: 'dashrimps',
+      name: 'Bubba Gump',
+      url: 'https://api.adorable.io/avatars/20/5.png'
+    }
   ];
 
   @HostListener('document:click', ['$event']) public clickedOutside(event) {
@@ -39,7 +59,10 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.mde.simplemde.codemirror.on('keydown', (cm: any, event: KeyboardEvent) => {
-      // console.log('~~~~', cm);
+      console.log('~~~~', cm);
+      console.log('~~~', cm.getCursor());
+      console.log('~~~', cm.getDoc());
+      console.log('~~~', cm.getSelection());
       // console.log('~~~~', event);
       this.codeMirror = cm;
 
@@ -91,15 +114,29 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
   }
 
   addMention() {
-    const currentVal: string = this.ctrl.value;
-    this.ctrl.patchValue(currentVal.concat(`${this.mentions[this.selectedIndex].userName} `));
-    event.preventDefault();
+    // this.codeMirror.replaceSelection(`${this.mentions[this.selectedIndex].userName} `);
+    const doc = this.codeMirror.getDoc();
+    const cursor = doc.getCursor();
+
+    const pos = {
+      line: cursor.line,
+      ch: cursor.ch
+    };
+
+    doc.replaceRange(`${this.mentions[this.selectedIndex].userName} `, pos);
     this.showMentions = false;
+
+
+    // const currentVal: string = this.ctrl.value;
+    // this.ctrl.patchValue(currentVal.concat(`${this.mentions[this.selectedIndex].userName} `));
+    // event.preventDefault();
+    // this.showMentions = false;
     requestAnimationFrame(() => {
       this.codeMirror.focus();
-      this.codeMirror.setCursor(this.codeMirror.lineCount(), 0);
-      this.codeMirror.setCursor(this.codeMirror.lineCount(), 0);
+      this.codeMirror.setCursor(pos.line, pos.ch + `${this.mentions[this.selectedIndex].userName} `.length);
     });
+
+    this.showMentions = false;
   }
 
 }

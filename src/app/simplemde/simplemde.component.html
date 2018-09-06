@@ -8,7 +8,11 @@
 </div>
 <span id="help" #help [class.inlineBlock]="showMentions">
     <div *ngFor="let mention of mentions; let i = index" [class.selected]="i === selectedIndex" class="mention2" (mouseenter)="selectedIndex = i" (click)="addMention()">
-        <strong>{{ mention.userName }}</strong>&nbsp;<span class="light">{{ mention.name }}</span>
+        <span>
+            <img src="{{ mention.url }}" style="border-radius: 3px; height: 20px;">
+        </span>&nbsp;
+        <strong>{{ mention.userName }}</strong>&nbsp;
+        <span class="light">{{ mention.name }}</span>
     </div>
 </span>
 </div>
