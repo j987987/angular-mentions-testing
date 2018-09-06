@@ -4,10 +4,10 @@
 <div>{{ ctrl.value }}</div>
 <h4>Rendered</h4>
 <div>
-    <markdown [data]="ctrl.value"></markdown>
+    <markdown [data]="rendered$ | async"></markdown>
 </div>
 <span id="help" #help [class.inlineBlock]="showMentions">
-    <div *ngFor="let mention of mentions; let i = index" [class.selected]="i === selectedIndex" class="mention2" (mouseenter)="selectedIndex = i" (click)="addMention()">
+    <div *ngFor="let mention of mention$ | async; let i = index" [class.selected]="i === selectedIndex" class="mention2" (mouseenter)="selectedIndex = i" (click)="addMention()">
         <span>
             <img src="{{ mention.url }}" style="border-radius: 3px; height: 20px;">
         </span>&nbsp;

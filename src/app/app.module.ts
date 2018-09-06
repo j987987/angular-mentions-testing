@@ -24,9 +24,20 @@ import { QuillModule } from 'ngx-quill';
         provide: SIMPLEMDE_CONFIG,
         // config options 1
         useValue: {
-          // previewRender: function (e) {
-          //   console.log('testing');
-          // },
+          previewRender: function (markdown, a, b, c) {
+            console.log(this);
+            console.log('testing', markdown, a, b, c);
+            console.log();
+            const markdown2 = this.parent.markdown(markdown);
+            return markdown2.replace(/(^@\w+)|(\W)(@\w+)/g,
+              (match, g1, g2, g3) => {
+                if (g1) {
+                  return `<span class="mentionHighlight">${g1}</span>`;
+                } else {
+                  return `${g2}<span class="mentionHighlight">${g3}</span>`;
+                }
+              });
+          },
           spellChecker: false,
           status: false
         }

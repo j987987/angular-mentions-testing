@@ -4,6 +4,8 @@ import { Key } from 'ts-keycode-enum';
 import CodeMirror from 'codemirror';
 import { Input } from '@angular/core';
 import { HostListener } from '@angular/core';
+import { map, startWith, withLatestFrom, tap, take, pairwise } from 'rxjs/operators';
+import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-simplemde',
@@ -18,6 +20,8 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
   selectedIndex = 0;
   showMentions = false;
   public codeMirror;
+  rendered$;
+  mentionTerm$ = new BehaviorSubject('');
 
   @Input()
   mentions = [
@@ -46,6 +50,7 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
       url: 'https://api.adorable.io/avatars/20/5.png'
     }
   ];
+  mention$;
 
   @HostListener('document:click', ['$event']) public clickedOutside(event) {
     if (this.showMentions && !this.help.nativeElement.contains(event.target)) {
@@ -55,19 +60,46 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
 
   constructor() { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.mention$ = this.ctrl.valueChanges
+      .pipe(
+        startWith(this.mentions),
+        withLatestFrom(this.mentionTerm$),
+        map(([_, mentionTerm]: [any, any]) => {
+          console.log('~~~', mentionTerm);
+          return this.mentions.filter((mention) => {
+            // tslint:disable-next-line:no-bitwise
+            return ~mention.userName.toLowerCase().indexOf(mentionTerm.toLowerCase())
+              // tslint:disable-next-line:no-bitwise
+              || ~mention.name.toLowerCase().indexOf(mentionTerm.toLowerCase());
+          });
+        })
+      );
+
+    this.rendered$ = this.ctrl.valueChanges
+      .pipe(
+        startWith(this.ctrl.value),
+        map(
+          (md) => md.replace(/(^@\w+)|(\W)(@\w+)/g,
+          (match, g1, g2, g3) => {
+            if (g1) {
+              return `<a href="#">${g1}</a>`;
+            } else {
+              return `${g2}<a href="#">${g3}</a>`;
+            }
+          })
+        )
+      );
+    }
 
   ngAfterViewInit() {
     this.mde.simplemde.codemirror.on('keydown', (cm: any, event: KeyboardEvent) => {
-      console.log('~~~~', cm);
-      console.log('~~~', cm.getCursor());
-      console.log('~~~', cm.getDoc());
-      console.log('~~~', cm.getSelection());
-      // console.log('~~~~', event);
+      // console.log('~~~~', cm);
       this.codeMirror = cm;
 
       if (!this.showMentions) {
         if (event.keyCode === Key.AtSign) {
+          this.mentionTerm$.next('');
           this.showMentions = true;
           this.selectedIndex = 0;
           const pos = cm.cursorCoords();
@@ -97,16 +129,17 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
             if (this.ctrl.value.endsWith('@')) {
               this.showMentions = false;
             }
+            this.mentionTerm$.next(this.mentionTerm$.value.slice(0, -1));
             break;
           case Key.Enter:
             this.addMention();
             break;
           default:
+            if (event.keyCode >= 33 && event.keyCode <= 126) {
+              this.mentionTerm$.next(this.mentionTerm$.value.concat(event.key));
+            }
+            console.log();
             this.selectedIndex = 0;
-            // const pos = cm.cursorCoords();
-            // const left = pos.left + 10, top = pos.bottom, below = true;
-            // this.help.nativeElement.style.left = left + 'px';
-            // this.help.nativeElement.style.top = top + 'px';
         }
       }
 
@@ -114,7 +147,6 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
   }
 
   addMention() {
-    // this.codeMirror.replaceSelection(`${this.mentions[this.selectedIndex].userName} `);
     const doc = this.codeMirror.getDoc();
     const cursor = doc.getCursor();
 
@@ -123,20 +155,34 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
       ch: cursor.ch
     };
 
-    doc.replaceRange(`${this.mentions[this.selectedIndex].userName} `, pos);
-    this.showMentions = false;
+    if (this.mentionTerm$.value && this.mentionTerm$.value.length) {
+      pos.ch = pos.ch - this.mentionTerm$.value.length;
+      this.codeMirror.replaceRange('', pos, { line: pos.line, ch: pos.ch + this.mentionTerm$.value.length });
+    }
 
+    this.mention$
+      .pipe(take(1))
+      .subscribe(
+        (mentions) => {
+          console.log('###mentions', mentions, this.selectedIndex);
+          const newMention = `${mentions[this.selectedIndex].userName} `;
 
-    // const currentVal: string = this.ctrl.value;
-    // this.ctrl.patchValue(currentVal.concat(`${this.mentions[this.selectedIndex].userName} `));
-    // event.preventDefault();
-    // this.showMentions = false;
-    requestAnimationFrame(() => {
-      this.codeMirror.focus();
-      this.codeMirror.setCursor(pos.line, pos.ch + `${this.mentions[this.selectedIndex].userName} `.length);
-    });
+          doc.replaceRange(newMention, pos);
+          this.showMentions = false;
 
-    this.showMentions = false;
+          requestAnimationFrame(() => {
+            this.codeMirror.focus();
+            this.codeMirror.setCursor(pos.line, pos.ch + newMention.length);
+            this.codeMirror.markText(
+              { line: pos.line, ch: pos.ch - 1 },
+              { line: pos.line, ch: pos.ch + newMention.length - 1 },
+              { className: 'mentionHighlight' }
+            );
+          });
+
+          this.showMentions = false;
+        }
+      );
   }
 
 }

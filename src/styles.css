@@ -39,7 +39,7 @@
   width: 65px;
   border-radius: 6px;
   background-color: #d3e1eb;
-  padding: 3px 0
+  padding: 3px 1px;
 }
 
 .mention[data-denotation-char="#"],
@@ -53,4 +53,8 @@
 
 .inlineBlock {
   display: inline-block !important;
+}
+
+.mentionHighlight {
+ color: red;
 }
