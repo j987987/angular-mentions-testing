@@ -4,8 +4,8 @@ import { Key } from 'ts-keycode-enum';
 import CodeMirror from 'codemirror';
 import { Input } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { map, startWith, withLatestFrom, tap, take, pairwise } from 'rxjs/operators';
-import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
+import { map, startWith, withLatestFrom, tap, take, pairwise, filter, debounceTime } from 'rxjs/operators';
+import { BehaviorSubject, Observable, combineLatest, fromEvent } from 'rxjs';
 
 @Component({
   selector: 'app-simplemde',
@@ -17,12 +17,23 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
   public ctrl = new FormControl('');
   @ViewChild('mde') public mde;
   @ViewChild('help') public help;
+  @ViewChild('fab') public fab;
   selectedIndex = 0;
   showMentions = false;
+  showFab = false;
   public codeMirror;
   rendered$;
   mentionTerm$ = new BehaviorSubject('');
-
+  selectedText = '';
+  @Input()
+  data = {
+    '@': [
+      'bob'
+    ],
+    '#': [
+      'jim'
+    ]
+  };
   @Input()
   mentions = [
     {
@@ -56,6 +67,9 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
     if (this.showMentions && !this.help.nativeElement.contains(event.target)) {
       this.showMentions = false;
     }
+    if (this.showFab && !this.fab.nativeElement.contains(event.target)) {
+      this.showFab = false;
+    }
   }
 
   constructor() { }
@@ -66,7 +80,6 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
         startWith(this.mentions),
         withLatestFrom(this.mentionTerm$),
         map(([_, mentionTerm]: [any, any]) => {
-          console.log('~~~', mentionTerm);
           return this.mentions.filter((mention) => {
             // tslint:disable-next-line:no-bitwise
             return ~mention.userName.toLowerCase().indexOf(mentionTerm.toLowerCase())
@@ -93,8 +106,24 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
     }
 
   ngAfterViewInit() {
+    this.codeMirror = this.mde.simplemde.codemirror;
+    fromEvent(this.mde.simplemde.codemirror, 'cursorActivity')
+      .pipe(
+        tap(() => this.showFab = false),
+        filter((cm: any) => cm.state.markedSelection && cm.state.markedSelection.length),
+        debounceTime(200),
+      )
+      .subscribe((cm) => {
+          this.showFab = true;
+          const pos = cm.cursorCoords(false);
+          const left = pos.left, top = pos.bottom, below = true;
+          this.fab.nativeElement.style.left = left + 'px';
+          this.fab.nativeElement.style.top = (top - 33) + 'px';
+        },
+      );
+
     this.mde.simplemde.codemirror.on('keydown', (cm: any, event: KeyboardEvent) => {
-      // console.log('~~~~', cm);
+      this.showFab = false;
       this.codeMirror = cm;
 
       if (!this.showMentions) {
@@ -122,7 +151,7 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
             event.preventDefault();
             break;
           case Key.Escape:
-          case Key.Space:
+          // case Key.Space:
             this.showMentions = false;
             break;
           case Key.Backspace:
@@ -144,6 +173,13 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
       }
 
     });
+  }
+
+  setSelectedText() {
+    console.log('!!!!! selection range:', this.codeMirror.getCursor(true), this.codeMirror.getCursor());
+    this.selectedText = this.codeMirror.getSelection();
+    this.showFab = false;
+    this.codeMirror.setSelection({ line: 0, ch: 0 });
   }
 
   addMention() {

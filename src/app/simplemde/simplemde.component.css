@@ -10,6 +10,27 @@
     display: none;
 }
 
+#fab {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, .2),
+    0 8px 10px 1px rgba(0, 0, 0, .14),
+    0 3px 14px 2px rgba(0, 0, 0, .12);
+    background: blue;
+    color: white;
+    border-radius: 50%;
+    height: 50px;
+    width: 50px;
+    line-height: 50px;
+    font-size: 40px;
+    text-align: center;
+    font-weight: 300;
+    display: none;
+    cursor: pointer;
+}
+
 .mention2 {
     padding: 3px 8px;
 }

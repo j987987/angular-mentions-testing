@@ -1,18 +1,25 @@
 <div>
-<simplemde [formControl]="ctrl" #mde></simplemde>
-<h4>Value</h4>
-<div>{{ ctrl.value }}</div>
-<h4>Rendered</h4>
-<div>
-    <markdown [data]="rendered$ | async"></markdown>
-</div>
-<span id="help" #help [class.inlineBlock]="showMentions">
-    <div *ngFor="let mention of mention$ | async; let i = index" [class.selected]="i === selectedIndex" class="mention2" (mouseenter)="selectedIndex = i" (click)="addMention()">
-        <span>
-            <img src="{{ mention.url }}" style="border-radius: 3px; height: 20px;">
-        </span>&nbsp;
-        <strong>{{ mention.userName }}</strong>&nbsp;
-        <span class="light">{{ mention.name }}</span>
+    <simplemde [formControl]="ctrl" #mde></simplemde>
+    <h4>Value</h4>
+    <div>{{ ctrl.value }}</div>
+    <h4>Rendered</h4>
+    <div>
+        <markdown [data]="rendered$ | async"></markdown>
     </div>
-</span>
+    <h4>Selected Text</h4>
+    <p>{{ selectedText }}</p>
+
+    <span id="help" #help [class.inlineBlock]="showMentions">
+        <div *ngFor="let mention of mention$ | async; let i = index" [class.selected]="i === selectedIndex" class="mention2" (mouseenter)="selectedIndex = i" (click)="addMention()">
+            <span>
+                <img src="{{ mention.url }}" style="border-radius: 3px; height: 20px;">
+            </span>&nbsp;
+            <strong>{{ mention.userName }}</strong>&nbsp;
+            <span class="light">{{ mention.name }}</span>
+        </div>
+    </span>
+
+
+    <span id="fab" #fab [class.inlineBlock]="showFab" (click)="setSelectedText()">+</span>
+
 </div>
