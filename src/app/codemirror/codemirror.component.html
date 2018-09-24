@@ -1,0 +1,6 @@
+<div class="codeMirrorComponent">
+  <select [(ngModel)]="selectedLang">
+    <option *ngFor="let lang of langs" [value]="lang">{{ lang }}</option>
+  </select>
+  <div #cm></div>
+</div>

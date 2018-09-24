@@ -1,8 +1,20 @@
 /* You can add global styles to this file, and also import other style files */
-@import 'simplemde/dist/simplemde.min.css';
+@import 'codemirror/lib/codemirror.css';
+@import 'codemirror/theme/shadowfox.css';
+@import 'codemirror/theme/material.css';
+@import 'codemirror/theme/yeti.css';
+@import 'codemirror/theme/solarized.css';
+@import 'codemirror/theme/night.css';
+@import 'codemirror/theme/monokai.css';
+/* @import 'simplemde/dist/simplemde.min.css'; */
+
 
 * {
   font-family: 'Roboto', sans-serif;
+}
+
+.codeMirrorComponent * {
+  font-family: monospace
 }
 
 .ql-mention-list-container {

@@ -1,0 +1,44 @@
+<div>
+  <p #target (mouseup)="mouseUp($event)">
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br><br><br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br><br><br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br><br><br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br><br><br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br><br><br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br><br><br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br><br><br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br>
+    This is a <strong>test</strong> to <strong>seee</strong> if <a href=""><strong>it</strong></a> selects, ok <span><strong>bob</strong></span>.<br><br><br>
+  </p>
+  <h4>Selected Text</h4>
+  <p>{{ selectedText }}</p>
+  <h4>Copied Selections</h4>
+  <ul>
+    <li *ngFor="let cs of copiedSelections">{{ cs }}</li>
+  </ul>
+
+  <span id="fab" #fab [class.inlineBlock]="showFab" (click)="copySelection()">+</span>
+</div>

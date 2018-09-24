@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild, AfterViewInit, NgZone } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Key } from 'ts-keycode-enum';
-import CodeMirror from 'codemirror';
+import * as CodeMirror from 'codemirror';
 import { Input } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { map, startWith, withLatestFrom, tap, take, pairwise, filter, debounceTime } from 'rxjs/operators';
 import { BehaviorSubject, Observable, combineLatest, fromEvent } from 'rxjs';
+import { Simplemde } from 'ng2-simplemde';
 
 @Component({
   selector: 'app-simplemde',
@@ -15,13 +16,13 @@ import { BehaviorSubject, Observable, combineLatest, fromEvent } from 'rxjs';
 export class SimplemdeComponent implements OnInit, AfterViewInit {
 
   public ctrl = new FormControl('');
-  @ViewChild('mde') public mde;
+  @ViewChild('mde') public mde: Simplemde | any;
   @ViewChild('help') public help;
   @ViewChild('fab') public fab;
   selectedIndex = 0;
   showMentions = false;
   showFab = false;
-  public codeMirror;
+  public codeMirror: CodeMirror.Editor;
   rendered$;
   mentionTerm$ = new BehaviorSubject('');
   selectedText = '';
@@ -62,6 +63,23 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
     }
   ];
   mention$;
+
+  options: SimpleMDE.Options | any = {
+    previewRender(markdown, a, b, c) {
+      console.log('testing', markdown, a, b, c);
+      const markdown2 = this.parent.markdown(markdown);
+      return markdown2.replace(/(^@\w+)|(\W)(@\w+)/g,
+        (match, g1, g2, g3) => {
+          if (g1) {
+            return `<span class="mentionHighlight">${g1}</span>`;
+          } else {
+            return `${g2}<span class="mentionHighlight">${g3}</span>`;
+          }
+        });
+    },
+    spellChecker: false,
+    status: false
+  };
 
   @HostListener('document:click', ['$event']) public clickedOutside(event) {
     if (this.showMentions && !this.help.nativeElement.contains(event.target)) {
@@ -115,23 +133,31 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
       )
       .subscribe((cm) => {
           this.showFab = true;
-          const pos = cm.cursorCoords(false);
+          const pos = this.mde.simplemde.codemirror.cursorCoords(false);
           const left = pos.left, top = pos.bottom, below = true;
           this.fab.nativeElement.style.left = left + 'px';
           this.fab.nativeElement.style.top = (top - 33) + 'px';
         },
       );
 
-    this.mde.simplemde.codemirror.on('keydown', (cm: any, event: KeyboardEvent) => {
+    this.mde.simplemde.codemirror.on('keydown', (_, event: KeyboardEvent) => {
       this.showFab = false;
-      this.codeMirror = cm;
+      // this.codeMirror = cm;
+      const doc = this.codeMirror.getDoc();
+      const cursor = doc.getCursor();
+      const wordAtCursor = this.getWordAtCursor(cursor);
+      // console.log(bleh);
+      // console.log('~~~~', this.mde.simplemde.codemirror.getTokenAt({line: bleh.line, ch: bleh.ch - 1}));
+      // console.log('~~~~', cm.getLineTokens(bleh.line));
+      // console.log('~~~~', this.mde.simplemde.codemirror.getLine(bleh.line));
+      // console.log('~~~~', this.mde.simplemde.codemirror.getLine(bleh.line + 1));
 
       if (!this.showMentions) {
         if (event.keyCode === Key.AtSign) {
           this.mentionTerm$.next('');
           this.showMentions = true;
           this.selectedIndex = 0;
-          const pos = cm.cursorCoords();
+          const pos = this.mde.simplemde.codemirror.cursorCoords();
           const left = pos.left + 10, top = pos.bottom, below = true;
           this.help.nativeElement.style.left = left + 'px';
           this.help.nativeElement.style.top = top + 'px';
@@ -176,10 +202,10 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
   }
 
   setSelectedText() {
-    console.log('!!!!! selection range:', this.codeMirror.getCursor(true), this.codeMirror.getCursor());
-    this.selectedText = this.codeMirror.getSelection();
+    const doc = this.codeMirror.getDoc();
+    this.selectedText = doc.getSelection();
     this.showFab = false;
-    this.codeMirror.setSelection({ line: 0, ch: 0 });
+    doc.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 0 });
   }
 
   addMention() {
@@ -193,32 +219,92 @@ export class SimplemdeComponent implements OnInit, AfterViewInit {
 
     if (this.mentionTerm$.value && this.mentionTerm$.value.length) {
       pos.ch = pos.ch - this.mentionTerm$.value.length;
-      this.codeMirror.replaceRange('', pos, { line: pos.line, ch: pos.ch + this.mentionTerm$.value.length });
+      doc.replaceRange('', pos, { line: pos.line, ch: pos.ch + this.mentionTerm$.value.length });
     }
 
     this.mention$
       .pipe(take(1))
       .subscribe(
         (mentions) => {
-          console.log('###mentions', mentions, this.selectedIndex);
-          const newMention = `${mentions[this.selectedIndex].userName} `;
+          if (mentions[this.selectedIndex]) {
+            console.log('###mentions', mentions, this.selectedIndex);
+            const newMention = `${mentions[this.selectedIndex].userName} `;
 
-          doc.replaceRange(newMention, pos);
-          this.showMentions = false;
+            doc.replaceRange(newMention, pos);
+            this.showMentions = false;
 
-          requestAnimationFrame(() => {
-            this.codeMirror.focus();
-            this.codeMirror.setCursor(pos.line, pos.ch + newMention.length);
-            this.codeMirror.markText(
-              { line: pos.line, ch: pos.ch - 1 },
-              { line: pos.line, ch: pos.ch + newMention.length - 1 },
-              { className: 'mentionHighlight' }
-            );
-          });
+            requestAnimationFrame(() => {
+              this.codeMirror.focus();
+              doc.setCursor(pos.line, pos.ch + newMention.length);
+              doc.markText(
+                { line: pos.line, ch: pos.ch - 1 },
+                { line: pos.line, ch: pos.ch + newMention.length - 1 },
+                { className: 'mentionHighlight' }
+              );
+            });
 
-          this.showMentions = false;
+            this.showMentions = false;
+          }
         }
       );
   }
+
+  getWordAtCursor(cursor: CodeMirror.Position): { before: string, after: string } {
+    const lineTokens = this.codeMirror.getLineTokens(cursor.line);
+    let before = '';
+    let after = '';
+    if (cursor.ch) {
+      const head = cursor.ch - 1;
+      let i = head;
+      while (i >= 0) {
+        const tokenString = lineTokens[i].string;
+        if (tokenString.match(/\s/)) {
+          break;
+        }
+        before = tokenString + before;
+        i--;
+      }
+
+      let j = head + 1;
+      while (j < lineTokens.length) {
+        const tokenString = lineTokens[j].string;
+        if (tokenString.match(/\s/)) {
+          break;
+        }
+        after = after + tokenString;
+        j++;
+      }
+      console.log('----', i + 1, '---', j - 1, '----', cursor.ch);
+      console.log('----', lineTokens[i + 1].string, '---', lineTokens[j - 1].string);
+    }
+    console.log('####', lineTokens);
+    console.log('~~~~', before, '$$$$', after);
+    return { before, after };
+  }
+  // getWordAtCursor(cursor: CodeMirror.Position): { word: string, valid: boolean } {
+  //   const lineTokens = this.codeMirror.getLineTokens(cursor.line);
+  //   let word = '';
+  //   let valid = false;
+  //   if (cursor.ch) {
+  //     const head = cursor.ch - 1;
+  //     let i = head;
+  //     while (i >= 0) {
+  //       const tokenString = lineTokens[i].string;
+  //       if (tokenString.match(/\s/)) {
+  //         break;
+  //       }
+  //       word = tokenString + word;
+  //       if (tokenString.match(/@/)) {
+  //         if (i === 0 || lineTokens[i - 1].string.match(/\s/)) {
+  //           valid = true;
+  //         }
+  //         break;
+  //       }
+  //       i--;
+  //     }
+  //   }
+  //   console.log('~~~~', word, '$$$$', valid);
+  //   return { word, valid };
+  // }
 
 }
